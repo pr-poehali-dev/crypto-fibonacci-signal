@@ -63,6 +63,8 @@ export default {
 					'fib-382': 'hsl(var(--chart-fib-382))',
 					'fib-50': 'hsl(var(--chart-fib-50))',
 					'fib-618': 'hsl(var(--chart-fib-618))',
+					'fib-786': 'hsl(var(--chart-fib-786))',
+					'fib-extension': 'hsl(var(--chart-fib-extension))',
 					grid: 'hsl(var(--chart-grid))'
 				}
 			},

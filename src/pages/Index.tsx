@@ -19,7 +19,7 @@ export default function Index() {
     {
       type: 'entry',
       message: 'Цена вошла в зону покупки',
-      level: '38.2% Фибоначчи',
+      level: 'Уровень 0.618',
       time: new Date().toLocaleTimeString('ru-RU')
     }
   ]);
@@ -27,7 +27,7 @@ export default function Index() {
   useEffect(() => {
     const interval = setInterval(() => {
       const signalTypes: Array<'entry' | 'exit' | 'warning'> = ['entry', 'exit', 'warning'];
-      const levels = ['23.6%', '38.2%', '50%', '61.8%'];
+      const levels = ['1.0', '0.786', '0.618', '0.5', '0.0', '-0.26'];
       const messages = {
         entry: 'Цена вошла в зону покупки',
         exit: 'Достигнут уровень фиксации',
@@ -42,7 +42,7 @@ export default function Index() {
           {
             type,
             message: messages[type],
-            level: `${level} Фибоначчи`,
+            level: `Уровень ${level}`,
             time: new Date().toLocaleTimeString('ru-RU')
           },
           ...prev.slice(0, 4)
@@ -176,21 +176,23 @@ export default function Index() {
               </CardHeader>
               <CardContent className="space-y-2">
                 {[
-                  { level: '0%', color: 'bg-chart-fib-236' },
-                  { level: '23.6%', color: 'bg-chart-fib-236' },
-                  { level: '38.2%', color: 'bg-chart-fib-382' },
-                  { level: '50%', color: 'bg-chart-fib-50' },
-                  { level: '61.8%', color: 'bg-chart-fib-618' },
-                  { level: '100%', color: 'bg-chart-fib-236' }
+                  { level: '1.0', color: 'bg-chart-fib-236', key: true },
+                  { level: '0.786', color: 'bg-chart-fib-786', key: true },
+                  { level: '0.618', color: 'bg-chart-fib-618', key: true },
+                  { level: '0.5', color: 'bg-chart-fib-50', key: true },
+                  { level: '0.0', color: 'bg-chart-fib-236', key: true },
+                  { level: '-0.26', color: 'bg-chart-fib-extension', key: false }
                 ].map((item, index) => (
                   <div key={index} className="flex items-center justify-between p-2 rounded hover:bg-muted/50 transition-colors">
                     <div className="flex items-center gap-2">
                       <div className={`w-3 h-3 rounded-full ${item.color}`} />
                       <span className="text-sm font-medium">{item.level}</span>
                     </div>
-                    <Badge variant="outline" className="text-xs">
-                      Ключевой
-                    </Badge>
+                    {item.key && (
+                      <Badge variant="outline" className="text-xs">
+                        Ключевой
+                      </Badge>
+                    )}
                   </div>
                 ))}
               </CardContent>

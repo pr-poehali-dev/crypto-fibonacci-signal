@@ -16,11 +16,19 @@ interface FibLevel {
   color: string;
 }
 
+interface TrendData {
+  type: 'bullish' | 'bearish';
+  startPrice: number;
+  endPrice: number;
+  startIndex: number;
+}
+
 export default function CryptoChart() {
   const [candles, setCandles] = useState<CandleData[]>([]);
   const [currentPrice, setCurrentPrice] = useState(0);
   const [fibLevels, setFibLevels] = useState<FibLevel[]>([]);
   const [priceRange, setPriceRange] = useState({ min: 0, max: 0 });
+  const [trend, setTrend] = useState<TrendData | null>(null);
 
   useEffect(() => {
     const basePrice = 45000;
@@ -56,13 +64,35 @@ export default function CryptoChart() {
     const max = Math.max(...allPrices);
     setPriceRange({ min, max });
     
-    const fibLevelsData: FibLevel[] = [
-      { level: 0, price: min, label: '0%', color: 'hsl(var(--chart-fib-236))' },
-      { level: 0.236, price: min + (max - min) * 0.236, label: '23.6%', color: 'hsl(var(--chart-fib-236))' },
-      { level: 0.382, price: min + (max - min) * 0.382, label: '38.2%', color: 'hsl(var(--chart-fib-382))' },
-      { level: 0.5, price: min + (max - min) * 0.5, label: '50%', color: 'hsl(var(--chart-fib-50))' },
-      { level: 0.618, price: min + (max - min) * 0.618, label: '61.8%', color: 'hsl(var(--chart-fib-618))' },
-      { level: 1, price: max, label: '100%', color: 'hsl(var(--chart-fib-236))' }
+    const minIndex = generatedCandles.findIndex(c => c.low === min || c.high === min);
+    const maxIndex = generatedCandles.findIndex(c => c.low === max || c.high === max);
+    
+    const isBullish = minIndex < maxIndex;
+    const startPrice = isBullish ? min : max;
+    const endPrice = isBullish ? max : min;
+    const impulseRange = Math.abs(endPrice - startPrice);
+    
+    setTrend({
+      type: isBullish ? 'bullish' : 'bearish',
+      startPrice,
+      endPrice,
+      startIndex: isBullish ? minIndex : maxIndex
+    });
+    
+    const fibLevelsData: FibLevel[] = isBullish ? [
+      { level: 1, price: startPrice, label: '1.0', color: 'hsl(var(--chart-fib-236))' },
+      { level: 0.786, price: startPrice + impulseRange * 0.214, label: '0.786', color: 'hsl(var(--chart-fib-786))' },
+      { level: 0.618, price: startPrice + impulseRange * 0.382, label: '0.618', color: 'hsl(var(--chart-fib-618))' },
+      { level: 0.5, price: startPrice + impulseRange * 0.5, label: '0.5', color: 'hsl(var(--chart-fib-50))' },
+      { level: 0, price: endPrice, label: '0.0', color: 'hsl(var(--chart-fib-236))' },
+      { level: -0.26, price: endPrice + impulseRange * 0.26, label: '-0.26', color: 'hsl(var(--chart-fib-extension))' }
+    ] : [
+      { level: 1, price: startPrice, label: '1.0', color: 'hsl(var(--chart-fib-236))' },
+      { level: 0.786, price: startPrice - impulseRange * 0.214, label: '0.786', color: 'hsl(var(--chart-fib-786))' },
+      { level: 0.618, price: startPrice - impulseRange * 0.382, label: '0.618', color: 'hsl(var(--chart-fib-618))' },
+      { level: 0.5, price: startPrice - impulseRange * 0.5, label: '0.5', color: 'hsl(var(--chart-fib-50))' },
+      { level: 0, price: endPrice, label: '0.0', color: 'hsl(var(--chart-fib-236))' },
+      { level: -0.26, price: endPrice - impulseRange * 0.26, label: '-0.26', color: 'hsl(var(--chart-fib-extension))' }
     ];
     
     setFibLevels(fibLevelsData);
