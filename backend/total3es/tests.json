@@ -1,0 +1,27 @@
+{
+  "tests": [
+    {
+      "name": "Get TOTAL3ES candles data",
+      "method": "GET",
+      "path": "/",
+      "queryParams": {
+        "interval": "1D",
+        "limit": "50"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "symbol": "TOTAL3ES",
+        "interval": "string",
+        "candles": "array"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Handle OPTIONS for CORS",
+      "method": "OPTIONS",
+      "path": "/",
+      "expectedStatus": 200,
+      "expectedBody": ""
+    }
+  ]
+}

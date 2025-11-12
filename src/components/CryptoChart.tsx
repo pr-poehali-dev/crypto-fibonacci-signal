@@ -31,41 +31,42 @@ export default function CryptoChart() {
   const [trend, setTrend] = useState<TrendData | null>(null);
 
   useEffect(() => {
-    const basePrice = 45000;
-    const volatility = 2000;
-    const candleCount = 50;
+    const fetchData = async () => {
+      try {
+        const response = await fetch('https://functions.poehali.dev/bb255dc9-0078-46de-81fc-a3bf098be3af?interval=1D&limit=50');
+        const data = await response.json();
+        
+        const fetchedCandles: CandleData[] = data.candles.map((c: any) => ({
+          time: c.time,
+          open: c.open,
+          high: c.high,
+          low: c.low,
+          close: c.close
+        }));
+        
+        setCandles(fetchedCandles);
+        setCurrentPrice(fetchedCandles[fetchedCandles.length - 1].close);
+        
+        processCandles(fetchedCandles);
+      } catch (error) {
+        console.error('Failed to fetch TOTAL3ES data:', error);
+      }
+    };
     
-    const generatedCandles: CandleData[] = [];
-    let lastClose = basePrice;
-    
-    for (let i = 0; i < candleCount; i++) {
-      const open = lastClose;
-      const change = (Math.random() - 0.5) * volatility;
-      const close = open + change;
-      const high = Math.max(open, close) + Math.random() * (volatility / 2);
-      const low = Math.min(open, close) - Math.random() * (volatility / 2);
-      
-      generatedCandles.push({
-        time: Date.now() - (candleCount - i) * 3600000,
-        open,
-        high,
-        low,
-        close
-      });
-      
-      lastClose = close;
-    }
-    
-    setCandles(generatedCandles);
+    fetchData();
+  }, []);
+  
+  const processCandles = (candlesData: CandleData[]) => {
+    const lastClose = candlesData[candlesData.length - 1].close;
     setCurrentPrice(lastClose);
     
-    const allPrices = generatedCandles.flatMap(c => [c.high, c.low]);
+    const allPrices = candlesData.flatMap(c => [c.high, c.low]);
     const min = Math.min(...allPrices);
     const max = Math.max(...allPrices);
     setPriceRange({ min, max });
     
-    const minIndex = generatedCandles.findIndex(c => c.low === min || c.high === min);
-    const maxIndex = generatedCandles.findIndex(c => c.low === max || c.high === max);
+    const minIndex = candlesData.findIndex(c => c.low === min || c.high === min);
+    const maxIndex = candlesData.findIndex(c => c.low === max || c.high === max);
     
     const isBullish = minIndex < maxIndex;
     const startPrice = isBullish ? min : max;
@@ -96,7 +97,7 @@ export default function CryptoChart() {
     ];
     
     setFibLevels(fibLevelsData);
-  }, []);
+  };
 
   useEffect(() => {
     const interval = setInterval(() => {
