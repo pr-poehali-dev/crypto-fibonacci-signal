@@ -191,6 +191,8 @@ export default function CryptoChart() {
           
           const bodyTop = Math.min(openY, closeY);
           const bodyHeight = Math.abs(openY - closeY);
+          
+          const isImpulseStart = trend && index === trend.startIndex;
 
           return (
             <g key={index}>
@@ -211,6 +213,47 @@ export default function CryptoChart() {
                 fill={color}
                 opacity="0.9"
               />
+              {isImpulseStart && (
+                <>
+                  <line
+                    x1={x}
+                    y1={0}
+                    x2={x}
+                    y2={chartHeight}
+                    stroke="hsl(var(--primary))"
+                    strokeWidth="2"
+                    strokeDasharray="10,5"
+                    opacity="0.5"
+                  />
+                  <circle
+                    cx={x}
+                    cy={getPriceY(trend.startPrice, chartHeight)}
+                    r="8"
+                    fill="hsl(var(--primary))"
+                    opacity="0.8"
+                  />
+                  <circle
+                    cx={x}
+                    cy={getPriceY(trend.startPrice, chartHeight)}
+                    r="12"
+                    fill="none"
+                    stroke="hsl(var(--primary))"
+                    strokeWidth="2"
+                    opacity="0.6"
+                    className="animate-pulse"
+                  />
+                  <text
+                    x={x}
+                    y={getPriceY(trend.startPrice, chartHeight) - 20}
+                    fill="hsl(var(--primary))"
+                    fontSize="12"
+                    fontWeight="700"
+                    textAnchor="middle"
+                  >
+                    Импульс
+                  </text>
+                </>
+              )}
             </g>
           );
         })}
